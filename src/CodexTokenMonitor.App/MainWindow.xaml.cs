@@ -19,6 +19,7 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer saveTimer = new() { Interval = TimeSpan.FromMilliseconds(400) };
     private readonly SemaphoreSlim refreshGate = new(1, 1);
     private readonly Forms.NotifyIcon tray;
+    private readonly System.Drawing.Icon trayIcon;
     private readonly List<Task> manualRefreshes = [];
     private Task? loop;
     private bool closing, readyToClose;
@@ -35,7 +36,8 @@ public partial class MainWindow : Window
         IRateLimitProvider provider = simulated ? new SimulatedRateLimitProvider() : new CodexRateLimitProvider(executable, TimeSpan.FromSeconds(preferences.TimeoutSeconds));
         DataContext = viewModel = new(provider, simulated); ApplyAppearance();
         Left = preferences.Left; Top = preferences.Top; Width = preferences.Width; Height = preferences.Height;
-        tray = new Forms.NotifyIcon { Icon = System.Drawing.SystemIcons.Application, Text = "Codex Token Monitor", Visible = true };
+        trayIcon = ApplicationIcon.LoadTrayIcon();
+        tray = new Forms.NotifyIcon { Icon = trayIcon, Text = "Codex Token Monitor", Visible = true };
         tray.DoubleClick += (_, _) => Dispatcher.Invoke(RestoreWidget);
         var trayMenu = new Forms.ContextMenuStrip();
         trayMenu.Items.Add("Show", null, (_, _) => Dispatcher.Invoke(RestoreWidget));
@@ -113,6 +115,6 @@ public partial class MainWindow : Window
     {
         if (readyToClose) return; e.Cancel = true; if (closing) return; closing = true;
         ageTimer.Stop(); saveTimer.Stop(); SavePlacement(); await lifetime.CancelAsync(); if (loop is not null) await loop; await Task.WhenAll(manualRefreshes);
-        tray.Visible = false; tray.ContextMenuStrip?.Dispose(); tray.Dispose(); lifetime.Dispose(); readyToClose = true; Close();
+        tray.Visible = false; tray.ContextMenuStrip?.Dispose(); tray.Dispose(); trayIcon.Dispose(); lifetime.Dispose(); readyToClose = true; Close();
     }
 }

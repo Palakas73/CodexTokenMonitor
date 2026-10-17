@@ -1,5 +1,5 @@
 <Window x:Class="CodexTokenMonitor.App.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:CodexTokenMonitor.App.Controls"
-        Title="Codex Token Monitor" Width="340" Height="300" MinWidth="260" MinHeight="220" Topmost="True" ShowActivated="False" WindowStyle="None" AllowsTransparency="True" ResizeMode="CanResizeWithGrip" Background="Transparent" Foreground="#F1F5F9" MouseLeftButtonDown="DragWidget">
+        Title="Codex Token Monitor" Icon="Assets/CodexTokenMonitor.ico" Width="340" Height="300" MinWidth="260" MinHeight="220" Topmost="True" ShowActivated="False" ShowInTaskbar="False" WindowStyle="None" AllowsTransparency="True" ResizeMode="CanResizeWithGrip" Background="Transparent" Foreground="#F1F5F9" MouseLeftButtonDown="DragWidget">
     <Border x:Name="Surface" Background="#F2151B25" CornerRadius="16" BorderBrush="#40546A" BorderThickness="1">
     <DockPanel Margin="20">
         <StackPanel DockPanel.Dock="Top">

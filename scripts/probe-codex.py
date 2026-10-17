@@ -44,7 +44,7 @@ def main():
 
     try:
         send({"id": 1, "method": "initialize", "params": {"clientInfo": {
-            "name": "codex_token_monitor", "title": "Codex Token Monitor", "version": "1.0.1"}}})
+            "name": "codex_token_monitor", "title": "Codex Token Monitor", "version": "1.0.2"}}})
         receive(1)
         print("initialize: OK")
         send({"method": "initialized"})

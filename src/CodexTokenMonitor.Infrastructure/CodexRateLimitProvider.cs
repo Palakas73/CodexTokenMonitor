@@ -38,7 +38,7 @@ public sealed class CodexRateLimitProvider(string? executable = null, TimeSpan? 
         var drain = DrainAsync(process.StandardError);
         try
         {
-            await SendAsync(process, new { id = 1, method = "initialize", @params = new { clientInfo = new { name = "codex_token_monitor", title = "Codex Token Monitor", version = "1.0.1" } } }, ct);
+            await SendAsync(process, new { id = 1, method = "initialize", @params = new { clientInfo = new { name = "codex_token_monitor", title = "Codex Token Monitor", version = "1.0.2" } } }, ct);
             await ReceiveAsync(process, 1, ct);
             await SendAsync(process, new { method = "initialized" }, ct);
             await SendAsync(process, new { id = 2, method = "account/rateLimits/read" }, ct);

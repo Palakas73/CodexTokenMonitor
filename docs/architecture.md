@@ -25,7 +25,7 @@ The application explicitly defaults CurrentUICulture and DefaultThreadCurrentUIC
 
 Geometry saves are debounced for 400 ms and flushed on close. A session-local mutex prevents duplicate instances. A named event restores the existing instance, checked by a lightweight UI timer.
 
-The tray icon remains active while the window is hidden and is disposed on exit. Closing waits for cancelled queries to finish. Startup uses only an app-owned shortcut in the user's Startup folder, modified when the option is explicitly toggled; the registry is untouched.
+The tray icon remains active while the window is hidden and is disposed on exit. The window has ShowInTaskbar disabled, so the app is managed through the tray rather than a taskbar button. The custom gauge ICO is embedded both as the executable icon and as a WPF resource; the tray selects a small/high-DPI frame and owns a clone independent of the resource stream. The ICO contains 16-256px frames and is reproducible from the checked-in drawing script and SVG design. Closing waits for cancelled queries to finish. Startup uses only an app-owned shortcut in the user's Startup folder, modified when the option is explicitly toggled; the registry is untouched.
 
 ## Distribution
 

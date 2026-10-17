@@ -1,10 +1,12 @@
-# Codex Token Monitor v1.0.1
+# Codex Token Monitor v1.0.2
 
 A lightweight native Windows 11 widget built with C#, .NET 10, WPF and MVVM. It reads real usage limits from the official local Codex app-server without generating model turns or reading credentials directly.
 
+![Application icon](src/CodexTokenMonitor.App/Assets/CodexTokenMonitor.svg)
+
 ## Download and run
 
-Download `CodexTokenMonitor-v1.0.1-win-x64.zip` from [Release v1.0.1](https://github.com/Palakas73/CodexTokenMonitor/releases/tag/v1.0.1), extract it to a permanent folder, and run `CodexTokenMonitor.App.exe`. This repository and its downloads are private and require authorized GitHub access.
+Download `CodexTokenMonitor-v1.0.2-win-x64.zip` from [Release v1.0.2](https://github.com/Palakas73/CodexTokenMonitor/releases/tag/v1.0.2), extract it to a permanent folder, and run `CodexTokenMonitor.App.exe`. The public release includes a ready-to-run Windows x64 package.
 
 The Windows x64 build is self-contained: you do not need to install .NET to run it. Codex CLI must be installed and signed in with an account that supports ChatGPT usage limits. No API key is required. Building from source creates the executable under `artifacts\win-x64`.
 
@@ -22,7 +24,7 @@ The Windows x64 build is self-contained: you do not need to install .NET to run 
 - Scroll up for the five-hour quota or down for the weekly quota. Select **Quota > Both** in the context menu to display both.
 - Right-click for visualization, quota, opacity, transparent background, size, refresh interval, startup, refresh, show, hide and exit options.
 - System tray: double-click to restore; right-click for **Show**, **Hide**, **Refresh** and **Exit**. If Windows hides the icon, check the tray overflow. Launching the app again also restores a hidden widget.
-- The widget stays on top and does not activate when refreshing data. Drag the bottom-right grip to resize it.
+- The widget stays on top, has no taskbar button, and does not activate when refreshing data. Its custom gauge icon appears in the system tray; Windows may put it in the overflow area. Drag the bottom-right grip to resize it.
 - Automatic refresh defaults to 120 seconds. The menu offers 15, 60, 120, 300 and 600 seconds. Manual refresh is available from the button and menus. Queries never run concurrently.
 - Values always show **remaining** quota: green at 70% or higher, yellow at 30%, orange at 10% and red below 10%. Calculation: `clamp(100 - usedPercent, 0, 100)`.
 - Missing quotas display `--`. Five hours (300 minutes) and weekly (10080 minutes) are identified by duration, never by response position. Account buckets remain separate.
@@ -47,6 +49,8 @@ powershell -NoProfile -File scripts/publish.ps1
 ```
 
 Close running copies from `bin` and the published directory before building or publishing to avoid locked files. The script uses the x64 SDK, stores caches and CLI home under `artifacts`, runs tests, and publishes a self-contained single-file `win-x64` executable without trimming. It also generates the versioned ZIP with the executable, README and release notes. Test results are saved to `artifacts/TestResults/publish.trx`.
+
+The application and tray share a custom multi-resolution ICO embedded in the executable. Its editable SVG source is under `src/CodexTokenMonitor.App/Assets`; regenerate the ICO with `powershell -NoProfile -File scripts/generate-icon.ps1` using built-in Windows/.NET drawing APIs.
 
 The .NET single-file runtime may extract native libraries into its temporary cache on startup. This is normal runtime behavior, not an installer.
 

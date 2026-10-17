@@ -55,3 +55,16 @@ The interface, app-owned errors, scripts and documentation have been translated 
 - Existing visualization, size, opacity and background preferences were retained. Date formatting remained regional.
 - A source and documentation scan found no remaining Spanish UI strings. This check does not claim manual interaction with every menu option or the tray icon.
 - The known hardware and Windows sign-in limitations above still apply.
+
+## v1.0.2 custom icon and tray-only taskbar behavior
+
+- Added a custom teal gauge icon, embedded in the executable and loaded for the notification area from a WPF resource.
+- Disabled the widget's taskbar button while preserving tray controls and restore behavior.
+- Added a multi-resolution ICO (16-256px), editable SVG and a deterministic Windows/.NET icon-generation script.
+- The existing 43 tests remained green. A new packaged-resource test verifies all nine frames through WPF and the 16-128px sizes through the native icon decoder: **44 tests passed** before packaging.
+- The initial test used an absolute pack URI before WPF registered the URI scheme; a component-relative resource URI resolves correctly. The test also distinguishes the 256px Explorer frame from the native small-icon best-fit selection.
+- The user explicitly confirmed manual verification of the icon and tray result. This is user-verified, not a claim that the automation inspected the tray directly.
+- The automated desktop helper no longer enumerated the widget after ShowInTaskbar was disabled. A diagnostic process check confirmed the launched test process was running; that process alone was then closed for rebuilding.
+- Windows notification-area overflow remains under user control; no taskbar registry or system preferences were changed.
+
+Final v1.0.2 packaging: `scripts/publish.ps1` completed with exit code 0, all **44 tests passed** with no failures or skips, and the self-contained EXE and ZIP were generated. The executable's own icon was extracted for artifact inspection, separately from the loose source artwork.
