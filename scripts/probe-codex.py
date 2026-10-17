@@ -9,7 +9,7 @@ import threading
 def main():
     executable = shutil.which("codex.exe")
     if not executable:
-        raise RuntimeError("codex.exe no encontrado en PATH")
+        raise RuntimeError("codex.exe was not found in PATH")
     process = subprocess.Popen([executable, "app-server", "--listen", "stdio://"],
                                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                stderr=subprocess.DEVNULL, text=True, encoding="utf-8",
@@ -33,18 +33,18 @@ def main():
         while True:
             line = messages.get(timeout=max(0.01, deadline - time.monotonic()))
             if line is None:
-                raise RuntimeError("Codex cerró la conexión")
+                raise RuntimeError("Codex closed the connection")
             message = json.loads(line)
             if "method" in message and "id" in message:
                 send({"id": message["id"], "error": {"code": -32601, "message": "Unsupported client request"}})
             elif message.get("id") == request_id:
                 if "error" in message:
-                    raise RuntimeError(f"Consulta rechazada; código RPC: {message['error'].get('code')}")
+                    raise RuntimeError(f"Request rejected; RPC code: {message['error'].get('code')}")
                 return message["result"]
 
     try:
         send({"id": 1, "method": "initialize", "params": {"clientInfo": {
-            "name": "codex_token_monitor", "title": "Codex Token Monitor", "version": "1.0.0"}}})
+            "name": "codex_token_monitor", "title": "Codex Token Monitor", "version": "1.0.1"}}})
         receive(1)
         print("initialize: OK")
         send({"method": "initialized"})
@@ -61,7 +61,7 @@ def main():
                                       "remainingPercent": max(0, min(100, 100-window["usedPercent"])),
                                       "resetsAt": window.get("resetsAt")}))
                     count += 1
-        print(f"account/rateLimits/read: OK; ventanas válidas: {count}")
+        print(f"account/rateLimits/read: OK; valid windows: {count}")
     finally:
         process.stdin.close()
         try:

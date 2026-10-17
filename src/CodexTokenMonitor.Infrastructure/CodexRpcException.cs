@@ -2,8 +2,8 @@ using System.Text.Json;
 namespace CodexTokenMonitor.Infrastructure;
 
 public sealed class CodexRpcException(int? code, bool authentication) : Exception(authentication
-    ? "Codex requiere una sesión autenticada compatible. Inicia sesión desde Codex y vuelve a actualizar."
-    : $"Codex rechazó la consulta (RPC {code?.ToString() ?? "desconocido"}).")
+    ? "Codex requires a compatible authenticated session. Sign in through Codex and refresh again."
+    : $"Codex rejected the request (RPC {code?.ToString() ?? "unknown"}).")
 {
     public int? Code { get; } = code;
     public bool IsAuthenticationFailure { get; } = authentication;

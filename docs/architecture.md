@@ -1,30 +1,32 @@
-# Arquitectura
+# Architecture
 
-## Componentes
+## Components
 
-- **Core**: `IRateLimitProvider`, instantáneas, ventanas por duración y bucket, conversión de porcentaje, estado obsoleto, preferencias normalizadas y cálculo puro de posición visible.
-- **Infrastructure**: búsqueda del CLI, proceso privado por consulta, JSONL con correlación por ID, errores RPC sanitizados, parser estricto, proveedor simulado y repositorio JSON atómico.
-- **App**: WPF/MVVM. El ViewModel administra datos y selección; los tres controles independientes dibujan con DrawingContext. El code-behind compone servicios de escritorio (ventana, bandeja, monitor, menú, ciclo de vida). Sin contenedor DI ni framework MVVM externo.
-- **Tests**: xUnit, renderizado STA y app-server falso ejecutado en un proceso real; no utiliza credenciales ni endpoints de producción.
+- **Core**: `IRateLimitProvider`, snapshots, quota windows identified by duration and bucket, remaining-percentage calculation, stale state, normalized preferences and pure window-placement calculations.
+- **Infrastructure**: CLI discovery, a private process per query, JSONL with request IDs, sanitized RPC errors, strict parsing, simulated provider and atomic JSON storage.
+- **App**: WPF/MVVM. The ViewModel manages data and selection. Three independent controls render through DrawingContext. The window composes desktop services for tray, monitors, menus and lifecycle without an external MVVM or DI framework.
+- **Tests**: xUnit, STA rendering and a fake app-server running in a real local process. No credentials or production endpoints are needed.
 
-## Lectura y recuperación
+## Reading and recovery
 
-Cada consulta inicia exclusivamente su propio proceso oculto, espera inicialización y consulta cuotas. Notificaciones no solicitadas se ignoran; solicitudes del servidor no soportadas reciben -32601. stderr se drena y descarta. No se almacenan transcripciones ni datos de autenticación. Las respuestas se correlacionan por ID y los campos de cuotas se validan.
+Each query starts its own hidden process, initializes the protocol and reads usage limits. Unsolicited notifications are ignored; unsupported server requests receive -32601. stderr is drained and discarded. No transcripts or authentication data are stored. Responses are correlated by ID and quota fields are validated.
 
-Timeout configurable (30 segundos por defecto), semáforos en proveedor y UI, cancelación al cerrar. La limpieza cierra stdin, espera dos segundos y termina solo el árbol propio si no sale. La espera de drenaje también está acotada. Tras un fallo, la próxima consulta parte de un proceso nuevo. La UI conserva el último dato válido, marca el fallo y recupera el estado normal al obtener una nueva instantánea. El envejecimiento temporal también marca datos obsoletos.
+Timeout defaults to 30 seconds and is configurable. Provider and UI semaphores prevent overlapping queries. Closing cancels pending work. Cleanup closes stdin, waits two seconds and terminates only the owned process tree if necessary. Diagnostic draining is also bounded. After a failure, the next query starts a fresh process. The UI keeps the last valid data, marks it stale and clears the error after a successful reading. Age checks also mark expired data stale.
 
-La clasificación amigable de autenticación utiliza indicios del mensaje del servidor; el código RPC se conserva pero el texto remoto nunca se muestra ni registra. Un error no reconocido se presenta como rechazo RPC genérico.
+Authentication classification uses recognized server-message terms. The RPC code is retained, but remote text is never displayed or logged. Unrecognized RPC errors use a generic message.
 
-## Interfaz y recursos
+## UI and resources
 
-Ventana Topmost, sin bordes, transparente según preferencias. Restauración física del HWND dentro del área útil de monitores, con WM_DISPLAYCHANGE / WM_DPICHANGED y manifiesto PerMonitorV2. No se llama Activate al refrescar. El arrastre termina ajustando la ventana a un monitor.
+The Topmost borderless window supports configurable opacity and background transparency. Physical HWND coordinates are fitted to monitor working areas using WM_DISPLAYCHANGE, WM_DPICHANGED and PerMonitorV2. Refresh never calls Activate. Dragging ends with a monitor-fit check.
 
-Digital, gauge y RPG reciben porcentaje restante o NaN para ausencia. Animación de 350 ms al cambiar valor, sin bucles de dibujo continuo; se respeta ClientAreaAnimation. El texto de cada fila expone el valor a accesibilidad y al tooltip. La barra se ancla a la izquierda, de modo que se vacía desde la derecha.
+Digital, gauge and RPG controls receive remaining quota or NaN for missing data. Changes animate for 350 ms without a continuous rendering loop and respect ClientAreaAnimation. Rows and tooltips expose percentage values to accessibility. The RPG bar is left-anchored so consumption empties it from the right.
 
-Las escrituras de geometría se agrupan con debounce de 400 ms; el cierre fuerza guardado. Un mutex por sesión evita duplicados. Un evento con nombre restaura la instancia existente; un temporizador ligero lo comprueba sin bloquear el hilo de UI.
+The application explicitly defaults CurrentUICulture and DefaultThreadCurrentUICulture to en-US. CurrentCulture is preserved for regional number and date formats. App-owned strings and scripts are English. System-dependent failures shown to users use English summaries rather than localized native exception text.
 
-La bandeja se conserva cuando se oculta la ventana y se libera al salir. El cierre se aplaza mientras se cancelan y esperan las consultas. Inicio automático mediante acceso directo propio en Inicio, sin registro; solo se modifica cuando el usuario activa/desactiva la opción.
+Geometry saves are debounced for 400 ms and flushed on close. A session-local mutex prevents duplicate instances. A named event restores the existing instance, checked by a lightweight UI timer.
 
-## Distribución
+The tray icon remains active while the window is hidden and is disposed on exit. Closing waits for cancelled queries to finish. Startup uses only an app-owned shortcut in the user's Startup folder, modified when the option is explicitly toggled; the registry is untouched.
 
-Windows x64 autocontenido y single-file, sin trimming para conservar compatibilidad con XAML y COM. El script ejecuta pruebas antes de publicar; no crea instaladores, repositorios ni cambios de seguridad.
+## Distribution
+
+The Windows x64 build is self-contained and single-file, without trimming to preserve XAML and COM compatibility. The publish script runs tests, builds the executable and packages it with the README and versioned release notes. It does not create installers or change security settings.

@@ -1,54 +1,57 @@
-# Validación v1.0.0
+# Validation
 
-## Alcance
+## Scope
 
-Este documento resume las pruebas de la versión estable sin incluir valores reales de cuotas, identidad de cuenta, rutas de perfil ni transcripciones de la sesión de desarrollo. El historial de desarrollo detallado se conserva únicamente como artefacto local excluido de Git.
+This report summarizes stable-version validation without real quota values, account identity, profile paths or development transcripts. The detailed development history is kept only as an ignored local artifact.
 
-## Resultados de desarrollo
+## v1.0.0 results
 
-- Compilaciones Release de las fases 2–5 correctas, sin advertencias ni errores; 13 pruebas iniciales superadas en cada etapa.
-- Batería ampliada de 33 pruebas de lógica, persistencia e integración con un app-server falso local.
-- Batería final de **43 pruebas** con renderizado de los tres controles y regresión del gradiente del gauge.
-- Publicación Windows x64 autocontenida, single-file y sin trimming ejecutada correctamente.
+- Release builds for phases 2-5 completed with no warnings or errors, with the initial 13 tests passing after each stage.
+- The integration and preferences suite increased coverage to 33 tests.
+- The final suite contained **43 passing tests**, including control rendering and the gauge-gradient regression.
+- The self-contained Windows x64 single-file distribution was generated successfully without trimming.
+- Before publication, a new Release build completed with **0 warnings and 0 errors**, and `scripts/publish.ps1` passed **43 tests with 0 failures and 0 skips**.
+- File metadata was FileVersion `1.0.0.0`, ProductVersion `1.0.0`.
+- ZIP integrity and executable equality were verified. The archive contained the executable, README and release notes.
+- The initial 42 source/documentation files were reviewed: no private keys, tokens, personal email addresses, profile paths or sensitive assignments were detected. Build output, caches, logs, preferences and account data were excluded. Git used a GitHub noreply identity.
 
-## Cobertura automatizada
+## Automated coverage
 
-Conversión consumido/restante y límites; identificación de ventanas por duración y bucket; cuotas ausentes; JSON-RPC incompleto o malformado; clasificación de errores y falta de autenticación simulada; desconexión/reconexión; timeout, cancelación y cierre del PID propio; consultas concurrentes; datos obsoletos; persistencia, sustitución atómica, preferencias dañadas y normalización; geometría con monitores retirados, negativos o pequeños y escalas simuladas; renderizado STA en límites de color y ausencia de datos.
+Consumed-to-remaining conversion and out-of-range inputs; window identification by duration and bucket; missing quotas; incomplete or malformed JSON-RPC; RPC and simulated authentication errors; disconnect/reconnect; timeout, cancellation and owned-process cleanup; concurrent updates; stale data; preference persistence, atomic replacement, corrupt files and normalization; negative, removed and small monitor geometry with simulated scale factors; STA rendering at color boundaries and unavailable data.
 
-## Pruebas manuales realmente realizadas
+## Manual checks actually performed for v1.0.0
 
-- Lectura real desde Codex y contraste de porcentajes consumidos/restantes, sin conservar datos de cuenta en el repositorio.
-- Digital, gauge y RPG inspeccionados con datos reales, también en la distribución autocontenida.
-- Doble clic, rueda en ambas direcciones y arrastre comprobados.
-- Persistencia de modo y geometría tras reabrir.
-- Ocultación desde menú y recuperación mediante segunda ejecución, sin duplicar la ventana.
-- Refresco automático de 120 segundos observado sin pulsar actualización manual.
-- Creación y retirada del acceso directo de Inicio desde el menú, verificando destino y argumento de arranque oculto. Se deja desactivado.
-- Cierre normal antes de recompilar y apertura desde una carpeta con únicamente el EXE.
+- Live Codex readings and consumed/remaining conversion were checked without retaining account values in the repository.
+- Digital, gauge and RPG views were inspected with real data, including in the self-contained build.
+- Double-click switching, wheel selection in both directions and dragging were checked.
+- Visualization and geometry were restored after reopening.
+- Hiding from the context menu and restoring by launching again reused the existing window.
+- Automatic refresh after 120 seconds was observed without manual input.
+- Startup shortcut creation and removal were checked from the menu, including target and hidden-start argument. Startup was left disabled.
+- Normal close before rebuilding and launch from a folder containing only the EXE were checked.
 
-## Problemas corregidos durante validación
+## Issues corrected during validation
 
-La rueda era capturada por ScrollViewer; se cambió a PreviewMouseWheel y se comprobó. El gradiente del gauge se fijó al arco completo para evitar verde en cuota baja, con prueba de regresión. Se mejoró el manejo de preferencias dañadas. Una publicación bloqueada por DLL en uso se resolvió cerrando normalmente la aplicación y repitiendo el script.
+ScrollViewer intercepted wheel input; PreviewMouseWheel fixed quota selection and was checked in both directions. The gauge gradient was anchored to the full arc to prevent green in a low-quota segment, with a regression test. Corrupt preference handling was improved. A publication blocked by a running executable was retried after closing the app normally.
 
-## No ejecutadas y límites
+## Not executed and known limits
 
-- Traslado físico entre monitores, cambio real de DPI y desconexión física de pantallas.
-- Interacción directa con el icono de bandeja mediante automatización.
-- Nuevo inicio de sesión de Windows.
-- Todas las combinaciones manuales de tamaño, opacidad e intervalo.
-- Fallos del servicio remoto o cierre de sesión real: los errores se provocaron con FakeServer.
-- Prueba en un segundo equipo sin runtime .NET instalado.
+- Physical monitor changes, real DPI changes and physical display disconnection.
+- Direct automation of the notification-area tray icon.
+- A new Windows sign-in.
+- Every manual combination of size, opacity and refresh interval.
+- Remote-service failures or actual sign-out: error cases used FakeServer.
+- Execution on a second machine without .NET installed.
 
-No se declaran superadas estas pruebas. No hay instalador, firma digital ni actualizador automático.
+These checks are not claimed to have passed. No installer, code signature or automatic updater is included.
 
-## Revalidación para publicación
+## v1.0.1 English-default update
 
-Comprobación previa al commit inicial de v1.0.0:
+The interface, app-owned errors, scripts and documentation have been translated into English. UI culture defaults to en-US while regional date and number formatting is preserved. No preference migration is required.
 
-- `dotnet build CodexTokenMonitor.slnx -c Release --no-restore`: correcto, **0 advertencias y 0 errores**.
-- `scripts/publish.ps1`: código 0; **43 pruebas superadas, 0 fallidas, 0 omitidas**; publicación x64 autocontenida y ZIP generados.
-- Metadatos del EXE: FileVersion `1.0.0.0`, ProductVersion `1.0.0`.
-- ZIP verificado sin errores y con tres entradas: ejecutable, README y notas de versión. Su EXE coincide byte a byte con el resultado de publicación.
-- Revisión de los 42 archivos fuente/documentación previstos para el commit: no se detectaron claves privadas, tokens, correos personales, rutas de perfil ni asignaciones sensibles. Se excluyen salidas de compilación, cachés, logs, preferencias y datos de cuenta.
-- Los valores reales de cuotas y el historial local detallado no forman parte del código publicado. El commit utiliza identidad noreply de GitHub.
-- Esta preparación solo cambia metadatos de versión, documentación, exclusiones y empaquetado; no añade funcionalidades ni cambia el comportamiento del widget.
+- `scripts/publish.ps1` completed with exit code 0: Release compilation succeeded, all **43 tests passed**, with **0 failed and 0 skipped**. The v1.0.1 self-contained EXE and ZIP were generated.
+- The published executable was opened and inspected through Computer Use. Its header, live-data state, five-hour label, reset label, last-update label and Refresh button were English.
+- The context menu was inspected: Visualization, Quota, Opacity, Transparent background, Size, Refresh interval, Start with Windows, Refresh now, Show, Hide and Exit were English.
+- Existing visualization, size, opacity and background preferences were retained. Date formatting remained regional.
+- A source and documentation scan found no remaining Spanish UI strings. This check does not claim manual interaction with every menu option or the tray icon.
+- The known hardware and Windows sign-in limitations above still apply.

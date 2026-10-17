@@ -54,7 +54,7 @@ public sealed class RateLimitTests
         var state = new MonitorState();
         var snapshot = new RateLimitSnapshot([], DateTimeOffset.UtcNow);
         state.Accept(snapshot);
-        state.Fail("Sin conexión");
+        state.Fail("No connection");
         Assert.Same(snapshot, state.LastGood);
         Assert.True(state.IsStale);
         state.Accept(snapshot);
@@ -64,7 +64,7 @@ public sealed class RateLimitTests
     [Fact]
     public void InitialFailureHasNoInventedData()
     {
-        var state = new MonitorState(); state.Fail("Sin autenticación");
+        var state = new MonitorState(); state.Fail("Not authenticated");
         Assert.Null(state.LastGood);
     }
 

@@ -1,44 +1,36 @@
 # Codex Token Monitor v1.0.0
 
-Primera versión estable de un widget nativo para Windows que muestra la cuota restante de OpenAI Codex mediante el app-server oficial local.
+The first stable release of a native Windows desktop widget that displays remaining OpenAI Codex usage limits through the official local app-server.
 
-## Funcionalidades
+## Features
 
-- Widget siempre visible, sin bordes, arrastrable y redimensionable; opacidad y fondo configurables.
-- Display LED de siete segmentos, gauge semicircular y barra RPG con animaciones breves.
-- Cuotas de cinco horas, semanal o ambas; porcentajes restantes y restablecimiento local.
-- Refresco automático configurable (120 segundos por defecto) y manual, sin consultas simultáneas.
-- Indicación de errores y datos obsoletos sin inventar porcentajes.
-- Preferencias persistentes, icono de bandeja, recuperación de instancia existente e inicio automático opcional mediante acceso directo.
-- Sin generación de turnos ni lectura directa de credenciales por el monitor.
+- Borderless, draggable, resizable and always-on-top widget with configurable opacity and background.
+- Seven-segment digital display, semicircular gauge and RPG bar with short animations.
+- Five-hour quota, weekly quota or both, with remaining percentages and local reset times.
+- Configurable automatic refresh (120 seconds by default) and manual refresh without overlapping queries.
+- Errors and stale-data indicators without invented percentages.
+- Persistent preferences, system tray controls, existing-instance recovery and optional startup shortcut.
+- No generation turns or direct credential reading by the monitor.
 
-## Requisitos
+## Requirements
 
-- Windows 11 x64.
-- Codex CLI instalado y autenticado con una cuenta compatible con cuotas de ChatGPT.
-- Acceso al estado normal de Codex y conectividad para consultar las cuotas.
-- La distribución es autocontenida: no hace falta instalar .NET para ejecutarla. Para compilar: SDK .NET 10 x64.
+Windows 11 x64, Codex CLI installed and signed in with an account supporting ChatGPT usage limits, normal access to Codex state and network connectivity. The build is self-contained; .NET is not required to run it. Building from source requires the .NET 10 x64 SDK.
 
-## Instalación y uso
+## Installation
 
-1. Descarga `CodexTokenMonitor-v1.0.0-win-x64.zip` de esta Release y extráelo en una carpeta permanente.
-2. Ejecuta `CodexTokenMonitor.App.exe` con tu usuario habitual.
-3. Doble clic cambia de visualización; la rueda selecciona cuota; clic derecho abre las opciones.
-4. Activa inicio con Windows solo si lo deseas. Si mueves el ejecutable, vuelve a activar esa opción desde la ubicación definitiva.
+1. Download `CodexTokenMonitor-v1.0.0-win-x64.zip` and extract it to a permanent folder.
+2. Run `CodexTokenMonitor.App.exe` as your usual Windows user.
+3. Double-click to change visualization, use the wheel to choose quota, or right-click for settings.
+4. Enable Windows startup only if desired. If you move the executable, enable it again from the final location.
 
-No hay instalador ni cambios en el registro. Los ajustes se guardan en `%LOCALAPPDATA%\CodexTokenMonitor`. Para probar sin cuenta, ejecuta con `--simulate`; los datos se etiquetan como simulación.
+There is no installer or registry modification. Preferences are stored in `%LOCALAPPDATA%\CodexTokenMonitor`. Use `--simulate` for explicitly labeled demo data.
 
-## Validación
+## Validation
 
-Compilación Release y 43 pruebas xUnit. Cobertura de errores RPC, autenticación simulada, reconexión, timeout, cancelación y cierre del proceso, concurrencia, cuotas ausentes, preferencias, geometría de monitores y renderizado de los tres controles. Validación manual de las tres visualizaciones con datos reales, arrastre, rueda, persistencia, ocultación/recuperación, refresco automático y creación/retirada del acceso directo de inicio.
+Release compilation and 43 xUnit tests, including RPC errors, simulated authentication, reconnection, timeout, cancellation, process cleanup, concurrency, absent quotas, preferences, monitor geometry and rendering. Manual checks covered the three visualizations with real data, dragging, wheel selection, persistence, hiding/restoring, automatic refresh and startup shortcut creation/removal.
 
-## Limitaciones conocidas
+## Known limitations
 
-- El protocolo app-server de Codex es experimental; cambios incompatibles pueden requerir actualizar el monitor.
-- Las pruebas de monitores y DPI son simuladas: no se ha verificado el traslado físico entre pantallas con escalas distintas.
-- No se ha realizado una prueba manual directa del menú del icono en la bandeja ni un nuevo inicio de sesión de Windows. Se comprobó la recuperación alternativa ejecutando de nuevo la aplicación y la creación/retirada del acceso directo.
-- No se probaron manualmente todas las combinaciones de tamaños, opacidades e intervalos.
-- La distribución no tiene firma de código, instalador ni actualizador automático. No se ha probado en un segundo equipo sin .NET.
-- Las cuotas dependen de la cuenta: una ventana ausente se muestra como no disponible.
+The app-server protocol is experimental. Physical mixed-DPI monitor changes, direct tray-icon interactions, a new Windows sign-in and all size/opacity/interval combinations were not manually tested. Recovery through a second launch and shortcut creation/removal were checked. There is no code signature, installer or automatic updater. Execution on a second machine without .NET was not tested. Account-specific quotas may be unavailable and are shown accordingly.
 
-Consulta el README, `docs/architecture.md` y `docs/validation.md` para más detalles.
+These are historical v1.0.0 notes translated for the documentation; the original v1.0.0 binary used Spanish app text. Version 1.0.1 changes the default language to English.

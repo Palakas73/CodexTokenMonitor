@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Globalization;
 namespace CodexTokenMonitor.App;
 public partial class App : Application
 {
@@ -7,6 +8,9 @@ public partial class App : Application
     private System.Windows.Threading.DispatcherTimer? timer;
     protected override void OnStartup(StartupEventArgs e)
     {
+        // App text and framework resources default to English; keep regional date/number formats.
+        CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.GetCultureInfo("en-US");
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
         instance = new Mutex(true, "Local\\CodexTokenMonitor.Widget", out var created);
         restore = new EventWaitHandle(false, EventResetMode.AutoReset, "Local\\CodexTokenMonitor.Restore");
         if (!created) { restore.Set(); Shutdown(); return; }

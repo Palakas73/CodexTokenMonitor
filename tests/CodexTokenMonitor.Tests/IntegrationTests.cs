@@ -76,7 +76,7 @@ public sealed class IntegrationTests
     {
         var provider = new WaitingProvider(); var vm = new MonitorViewModel(provider, false); var read = vm.RefreshAsync(CancellationToken.None);
         provider.Result.SetResult(new([new("codex", 300, 40, null)], DateTimeOffset.UtcNow.AddMinutes(-10))); await read;
-        vm.CheckAge(TimeSpan.FromSeconds(120)); Assert.Contains("DESACTUALIZADO", vm.Status); Assert.Equal(60, vm.Rows.First().Remaining);
+        vm.CheckAge(TimeSpan.FromSeconds(120)); Assert.Contains("STALE", vm.Status); Assert.Equal(60, vm.Rows.First().Remaining);
     }
     private sealed class WaitingProvider : IRateLimitProvider
     {

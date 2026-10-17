@@ -9,7 +9,7 @@ public sealed class PreferencesStore(string path)
     {
         if (!File.Exists(path)) return new();
         try { return (JsonSerializer.Deserialize<Preferences>(File.ReadAllText(path)) ?? new()).Normalize(); }
-        catch (JsonException) { throw new InvalidDataException("Preferencias inválidas. El archivo original se conserva."); }
+        catch (JsonException) { throw new InvalidDataException("Invalid preferences. The original file has been preserved."); }
     }
     public void Save(Preferences preferences)
     {

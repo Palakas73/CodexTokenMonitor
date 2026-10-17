@@ -1,42 +1,44 @@
-# Codex Token Monitor v1.0.0
+# Codex Token Monitor v1.0.1
 
-Widget nativo para Windows 11, C# / .NET 10 / WPF / MVVM. Consulta cuotas reales mediante el app-server oficial de Codex; no genera turnos ni accede directamente a credenciales.
+A lightweight native Windows 11 widget built with C#, .NET 10, WPF and MVVM. It reads real usage limits from the official local Codex app-server without generating model turns or reading credentials directly.
 
-## Ejecutar
+## Download and run
 
-Descarga `CodexTokenMonitor-v1.0.0-win-x64.zip` desde la [Release v1.0.0](https://github.com/Palakas73/CodexTokenMonitor/releases/tag/v1.0.0), extráelo en una carpeta permanente y abre `CodexTokenMonitor.App.exe`. El repositorio y sus descargas son privados y requieren acceso autorizado de GitHub.
+Download `CodexTokenMonitor-v1.0.1-win-x64.zip` from [Release v1.0.1](https://github.com/Palakas73/CodexTokenMonitor/releases/tag/v1.0.1), extract it to a permanent folder, and run `CodexTokenMonitor.App.exe`. This repository and its downloads are private and require authorized GitHub access.
 
-La distribución es Windows x64 autocontenida, sin instalación de .NET en el equipo destino. Codex CLI debe estar instalado y autenticado con una cuenta que ofrezca cuotas de ChatGPT. No se requiere una clave API. Si compilas desde el código, el ejecutable se genera en `artifacts\win-x64`.
+The Windows x64 build is self-contained: you do not need to install .NET to run it. Codex CLI must be installed and signed in with an account that supports ChatGPT usage limits. No API key is required. Building from source creates the executable under `artifacts\win-x64`.
 
 ```powershell
-.\artifacts\win-x64\CodexTokenMonitor.App.exe
-.\artifacts\win-x64\CodexTokenMonitor.App.exe --simulate
-.\artifacts\win-x64\CodexTokenMonitor.App.exe --codex "C:\ruta\codex.exe" --timeout-seconds 45
+.\CodexTokenMonitor.App.exe
+.\CodexTokenMonitor.App.exe --simulate
+.\CodexTokenMonitor.App.exe --codex "C:\path\codex.exe" --timeout-seconds 45
 ```
 
-`--simulate` muestra datos expresamente etiquetados como simulación. Nunca se activa automáticamente. `--start-hidden` inicia en bandeja. Solo se permite una instancia por sesión de Windows: volver a ejecutar restaura el widget existente. Para cambiar argumentos, sal primero de la instancia activa.
+`--simulate` explicitly labels demo data and never activates as an automatic fallback. `--start-hidden` starts in the system tray. Only one instance runs per Windows session: launching the app again restores the existing widget. Exit the current instance before changing command-line arguments.
 
-## Uso
+## Controls
 
-- Arrastra con el botón izquierdo. Doble clic alterna display de siete segmentos, gauge y barra RPG.
-- Rueda arriba: cinco horas; abajo: semanal. Selecciona **Cuota → Ambas** en el menú para verlas juntas.
-- Clic derecho: visualización, cuota, opacidad, fondo transparente, tamaño, intervalo, inicio automático, actualización, mostrar, ocultar y salir.
-- Bandeja: doble clic restaura; menú con Mostrar, Ocultar, Actualizar y Salir. Si Windows oculta el icono, búscalo en los iconos desbordados de la bandeja. También puedes ejecutar de nuevo la aplicación para recuperarla.
-- El widget permanece encima de otras ventanas y no se activa al consultar datos. La esquina inferior derecha permite redimensionar.
-- Por defecto refresca cada 120 segundos; menú con 15, 60, 120, 300 y 600 segundos. Botón y menú permiten refresco manual. No se realizan consultas simultáneas.
-- Los porcentajes son cuota **restante**: verde ≥70, amarillo ≥30, naranja ≥10 y rojo <10. Se calcula `clamp(100 - usedPercent, 0, 100)`.
-- Una cuota ausente muestra `--`; se distingue cinco horas (300 minutos) de semanal (10080) por duración, nunca por posición. Se mantienen separados los buckets de cuenta.
-- Si falla una lectura, se conservan los últimos valores y aparece **DESACTUALIZADO**. La última lectura correcta y el restablecimiento se muestran en hora local. Una ventana de cuota no disponible no equivale a 0 %.
+- Drag with the left mouse button. Double-click to cycle through the seven-segment digital display, semicircular gauge and RPG bar.
+- Scroll up for the five-hour quota or down for the weekly quota. Select **Quota > Both** in the context menu to display both.
+- Right-click for visualization, quota, opacity, transparent background, size, refresh interval, startup, refresh, show, hide and exit options.
+- System tray: double-click to restore; right-click for **Show**, **Hide**, **Refresh** and **Exit**. If Windows hides the icon, check the tray overflow. Launching the app again also restores a hidden widget.
+- The widget stays on top and does not activate when refreshing data. Drag the bottom-right grip to resize it.
+- Automatic refresh defaults to 120 seconds. The menu offers 15, 60, 120, 300 and 600 seconds. Manual refresh is available from the button and menus. Queries never run concurrently.
+- Values always show **remaining** quota: green at 70% or higher, yellow at 30%, orange at 10% and red below 10%. Calculation: `clamp(100 - usedPercent, 0, 100)`.
+- Missing quotas display `--`. Five hours (300 minutes) and weekly (10080 minutes) are identified by duration, never by response position. Account buckets remain separate.
+- Failed reads preserve the last valid values and display **STALE**. Last successful update and reset times use local time. An unavailable quota does not mean 0%.
 
-## Preferencias
+The default interface language is English, including menus, status and app-owned error messages. Dates and numbers retain the user's regional formats; there is no language selector.
 
-`%LOCALAPPDATA%\CodexTokenMonitor\preferences.json`, escritura mediante archivo temporal y sustitución. Guarda posición, tamaño, modo, cuota, opacidad, fondo, intervalo, timeout y preferencia de inicio. Las posiciones fuera de pantalla se ajustan al área útil de los monitores disponibles. Manifiesto PerMonitorV2 para escalado DPI.
+## Preferences
 
-El inicio automático está desactivado inicialmente. Al activarlo se crea exclusivamente `CodexTokenMonitor.lnk` en la carpeta Inicio del usuario; al desactivarlo se elimina ese acceso directo propio. No se modifica el registro. Actívalo desde la ubicación definitiva del ejecutable; si lo mueves, desactiva y activa la opción desde la nueva ubicación.
+Settings are stored in `%LOCALAPPDATA%\CodexTokenMonitor\preferences.json` through a temporary file and atomic replacement. They include position, size, visualization, quota, opacity, background, interval, timeout and startup preference. Off-screen positions are fitted to available monitor working areas. A PerMonitorV2 manifest enables per-monitor DPI awareness.
 
-## Compilar, probar y publicar
+Automatic startup is initially disabled. Enabling it creates only `CodexTokenMonitor.lnk` in the current user's Startup folder; disabling it removes that app-owned shortcut. The registry is not modified. Enable startup from the executable's permanent location. If you move it, disable and enable startup from the new location.
 
-SDK .NET 10 x64; Visual Studio 2026 para abrir `CodexTokenMonitor.slnx`. No hay dependencias externas de interfaz; xUnit y su adaptador se usan solo para pruebas.
+## Build, test and publish
+
+Use the .NET 10 x64 SDK; Visual Studio 2026 can open `CodexTokenMonitor.slnx`. The UI has no external dependencies. xUnit and its adapter are used only for tests.
 
 ```powershell
 & 'C:\Program Files\dotnet\dotnet.exe' build CodexTokenMonitor.slnx -c Release
@@ -44,21 +46,23 @@ SDK .NET 10 x64; Visual Studio 2026 para abrir `CodexTokenMonitor.slnx`. No hay 
 powershell -NoProfile -File scripts/publish.ps1
 ```
 
-Cierra las instancias ejecutadas desde `bin` y el ejecutable publicado antes de compilar/publicar para evitar archivos bloqueados. El script usa SDK x64, caché y CLI home bajo `artifacts`, ejecuta pruebas y publica `win-x64` autocontenido con archivo único y sin trimming. El runtime puede extraer bibliotecas nativas en la caché temporal de .NET al arrancar: es funcionamiento normal de single-file, sin instalador. Resultado de pruebas: `artifacts/TestResults/publish.trx`.
+Close running copies from `bin` and the published directory before building or publishing to avoid locked files. The script uses the x64 SDK, stores caches and CLI home under `artifacts`, runs tests, and publishes a self-contained single-file `win-x64` executable without trimming. It also generates the versioned ZIP with the executable, README and release notes. Test results are saved to `artifacts/TestResults/publish.trx`.
 
-Comprobación independiente opcional (requiere Python ya instalado): `python scripts/probe-codex.py`. Solo consulta cuotas, sin imprimir identidad ni credenciales. El usuario normal necesita acceso a su directorio de estado de Codex; el aislamiento de un agente puede impedirlo.
+The .NET single-file runtime may extract native libraries into its temporary cache on startup. This is normal runtime behavior, not an installer.
 
-## Validación y límites
+Optional independent protocol check (requires an existing Python installation): `python scripts/probe-codex.py`. It only reads quotas and never prints account identity or credentials. Codex needs access to its normal state directory; an agent sandbox may block that access.
 
-Véase `docs/validation.md` para resultados reales, fallos corregidos y pruebas no ejecutadas. Los tests de geometría simulan monitores y escalas; no equivalen a mover físicamente una ventana entre pantallas de DPI distinto. No se ha probado un inicio de sesión nuevo de Windows. No se incluye instalador, firma digital ni actualizador.
+## Validation and limitations
 
-## Fuentes
+See [validation](docs/validation.md) for actual results and unexecuted checks, and [architecture](docs/architecture.md) for implementation details. Geometry tests simulate monitors and scale factors; they do not replace moving a window between physical displays with different DPI settings. A new Windows sign-in has not been tested. No installer, code signature or automatic updater is included.
 
-Protocolo oficial verificado el 17/10/2026:
+## Official sources
+
+Protocol checked on October 17, 2026:
 
 - https://developers.openai.com/codex/app-server
 - https://github.com/openai/codex/tree/main/codex-rs/app-server
 - https://github.com/openai/codex/blob/main/codex-rs/app-server-protocol/schema/typescript/v2/RateLimitWindow.ts
 - https://github.com/openai/codex/blob/main/codex-rs/app-server-protocol/schema/typescript/v2/GetAccountRateLimitsResponse.ts
 
-JSONL por stdio, sin campo `jsonrpc`; `initialize` → `initialized` → `account/rateLimits/read`. Se prioriza `rateLimitsByLimitId` y se admite `rateLimits` para versiones anteriores. `resetsAt` está en segundos Unix. El protocolo es experimental: errores o cambios incompatibles se muestran sin inventar porcentajes.
+JSONL over stdio, without the `jsonrpc` field: `initialize` > `initialized` > `account/rateLimits/read`. The client prefers `rateLimitsByLimitId` and supports the legacy `rateLimits` field. `resetsAt` uses Unix seconds. The protocol is experimental; errors and incompatible changes are reported without fabricating percentages.

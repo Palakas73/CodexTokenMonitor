@@ -26,7 +26,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         try { preferences = store.Load(); }
-        catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException) { MessageBox.Show(ex.Message, "Preferencias"); }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException) { MessageBox.Show(ex is InvalidDataException ? ex.Message : "Could not load preferences. Check the settings file and folder permissions.", "Preferences"); }
         preferences = preferences with { AutoStart = StartupShortcut.Enabled };
         var args = Environment.GetCommandLineArgs(); var simulated = args.Contains("--simulate");
         var index = Array.IndexOf(args, "--codex"); var executable = index >= 0 && index + 1 < args.Length ? args[index + 1] : null;
@@ -38,10 +38,10 @@ public partial class MainWindow : Window
         tray = new Forms.NotifyIcon { Icon = System.Drawing.SystemIcons.Application, Text = "Codex Token Monitor", Visible = true };
         tray.DoubleClick += (_, _) => Dispatcher.Invoke(RestoreWidget);
         var trayMenu = new Forms.ContextMenuStrip();
-        trayMenu.Items.Add("Mostrar", null, (_, _) => Dispatcher.Invoke(RestoreWidget));
-        trayMenu.Items.Add("Ocultar", null, (_, _) => Dispatcher.Invoke(Hide));
-        trayMenu.Items.Add("Actualizar", null, (_, _) => Dispatcher.Invoke(StartManualRefresh));
-        trayMenu.Items.Add("Salir", null, (_, _) => Dispatcher.Invoke(Close)); tray.ContextMenuStrip = trayMenu;
+        trayMenu.Items.Add("Show", null, (_, _) => Dispatcher.Invoke(RestoreWidget));
+        trayMenu.Items.Add("Hide", null, (_, _) => Dispatcher.Invoke(Hide));
+        trayMenu.Items.Add("Refresh", null, (_, _) => Dispatcher.Invoke(StartManualRefresh));
+        trayMenu.Items.Add("Exit", null, (_, _) => Dispatcher.Invoke(Close)); tray.ContextMenuStrip = trayMenu;
         SourceInitialized += (_, _) => { HwndSource.FromHwnd(new WindowInteropHelper(this).Handle)?.AddHook(WindowMessages); FitToMonitors(); };
         LocationChanged += (_, _) => ScheduleSave(); SizeChanged += (_, _) => ScheduleSave();
         PreviewMouseWheel += (_, e) => { Change(preferences with { Quota = e.Delta > 0 ? QuotaSelection.FiveHours : QuotaSelection.Weekly }); e.Handled = true; };
@@ -61,19 +61,19 @@ public partial class MainWindow : Window
     {
         var menu = new ContextMenu();
         MenuItem Item(string title, Action action, bool? selected = null) { var item = new MenuItem { Header = title, IsCheckable = selected.HasValue, IsChecked = selected ?? false }; item.Click += (_, _) => action(); return item; }
-        var visual = new MenuItem { Header = "Visualización" };
-        foreach (var mode in Enum.GetValues<VisualMode>()) visual.Items.Add(Item(mode switch { VisualMode.Digital => "Display digital", VisualMode.Gauge => "Gauge semicircular", _ => "Barra RPG" }, () => Change(preferences with { Mode = mode }), preferences.Mode == mode)); menu.Items.Add(visual);
-        var quota = new MenuItem { Header = "Cuota" };
-        foreach (var selection in Enum.GetValues<QuotaSelection>()) quota.Items.Add(Item(selection switch { QuotaSelection.FiveHours => "Cinco horas", QuotaSelection.Weekly => "Semanal", _ => "Ambas" }, () => Change(preferences with { Quota = selection }), preferences.Quota == selection)); menu.Items.Add(quota);
-        var opacity = new MenuItem { Header = "Opacidad" };
+        var visual = new MenuItem { Header = "Visualization" };
+        foreach (var mode in Enum.GetValues<VisualMode>()) visual.Items.Add(Item(mode switch { VisualMode.Digital => "Digital display", VisualMode.Gauge => "Semicircular gauge", _ => "RPG bar" }, () => Change(preferences with { Mode = mode }), preferences.Mode == mode)); menu.Items.Add(visual);
+        var quota = new MenuItem { Header = "Quota" };
+        foreach (var selection in Enum.GetValues<QuotaSelection>()) quota.Items.Add(Item(selection switch { QuotaSelection.FiveHours => "Five hours", QuotaSelection.Weekly => "Weekly", _ => "Both" }, () => Change(preferences with { Quota = selection }), preferences.Quota == selection)); menu.Items.Add(quota);
+        var opacity = new MenuItem { Header = "Opacity" };
         foreach (var value in new[] { .4, .6, .8, 1 }) opacity.Items.Add(Item($"{value:P0}", () => Change(preferences with { Opacity = value }), preferences.Opacity == value)); menu.Items.Add(opacity);
-        menu.Items.Add(Item("Fondo transparente", () => Change(preferences with { TransparentBackground = !preferences.TransparentBackground }), preferences.TransparentBackground));
-        var size = new MenuItem { Header = "Tamaño" };
-        foreach (var entry in new[] { ("Compacto", 280d, 330d), ("Normal", 340d, 410d), ("Grande", 460d, 540d) }) size.Items.Add(Item(entry.Item1, () => { Width = entry.Item2; Height = entry.Item3; FitToMonitors(); ScheduleSave(); })); menu.Items.Add(size);
-        var interval = new MenuItem { Header = "Intervalo de actualización" };
-        foreach (var seconds in new[] { 15, 60, 120, 300, 600 }) interval.Items.Add(Item($"{seconds} segundos", () => Change(preferences with { RefreshSeconds = seconds }), preferences.RefreshSeconds == seconds)); menu.Items.Add(interval);
-        menu.Items.Add(Item("Inicio con Windows", () => { try { StartupShortcut.Set(!preferences.AutoStart); Change(preferences with { AutoStart = StartupShortcut.Enabled }); } catch (Exception ex) { MessageBox.Show(ex.Message, "Inicio con Windows"); ContextMenu = BuildMenu(); } }, preferences.AutoStart));
-        menu.Items.Add(new Separator()); menu.Items.Add(Item("Actualizar ahora", StartManualRefresh)); menu.Items.Add(Item("Mostrar", RestoreWidget)); menu.Items.Add(Item("Ocultar", Hide)); menu.Items.Add(Item("Salir", Close)); return menu;
+        menu.Items.Add(Item("Transparent background", () => Change(preferences with { TransparentBackground = !preferences.TransparentBackground }), preferences.TransparentBackground));
+        var size = new MenuItem { Header = "Size" };
+        foreach (var entry in new[] { ("Compact", 280d, 330d), ("Normal", 340d, 410d), ("Large", 460d, 540d) }) size.Items.Add(Item(entry.Item1, () => { Width = entry.Item2; Height = entry.Item3; FitToMonitors(); ScheduleSave(); })); menu.Items.Add(size);
+        var interval = new MenuItem { Header = "Refresh interval" };
+        foreach (var seconds in new[] { 15, 60, 120, 300, 600 }) interval.Items.Add(Item($"{seconds} seconds", () => Change(preferences with { RefreshSeconds = seconds }), preferences.RefreshSeconds == seconds)); menu.Items.Add(interval);
+        menu.Items.Add(Item("Start with Windows", () => { try { StartupShortcut.Set(!preferences.AutoStart); Change(preferences with { AutoStart = StartupShortcut.Enabled }); } catch (Exception) { MessageBox.Show("Could not update startup settings. Check access to your Startup folder.", "Start with Windows"); ContextMenu = BuildMenu(); } }, preferences.AutoStart));
+        menu.Items.Add(new Separator()); menu.Items.Add(Item("Refresh now", StartManualRefresh)); menu.Items.Add(Item("Show", RestoreWidget)); menu.Items.Add(Item("Hide", Hide)); menu.Items.Add(Item("Exit", Close)); return menu;
     }
     private void DragWidget(object sender, MouseButtonEventArgs e)
     {
@@ -88,7 +88,7 @@ public partial class MainWindow : Window
     {
         if (!IsLoaded || WindowState != WindowState.Normal) return;
         preferences = preferences with { Left = Left, Top = Top, Width = ActualWidth, Height = ActualHeight, Opacity = Opacity };
-        try { store.Save(preferences); } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { viewModel.ReportError("No se pudieron guardar preferencias: " + ex.Message); }
+        try { store.Save(preferences); } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { viewModel.ReportError("Could not save preferences. Check access to the settings folder."); }
     }
     private IntPtr WindowMessages(IntPtr hwnd, int message, IntPtr wParam, IntPtr lParam, ref bool handled) { if (message is 0x007E or 0x02E0) Dispatcher.BeginInvoke(FitToMonitors); return IntPtr.Zero; }
     private void FitToMonitors()

@@ -18,7 +18,7 @@ public sealed class CodexRateLimitProvider(string? executable = null, TimeSpan? 
             deadline.CancelAfter(timeout ?? TimeSpan.FromSeconds(30));
             try { return await ReadProcessAsync(deadline.Token); }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
-            { throw new TimeoutException("Codex no respondió dentro del tiempo configurado."); }
+            { throw new TimeoutException("Codex did not respond within the configured timeout."); }
         }
         finally { gate.Release(); }
     }
@@ -33,12 +33,12 @@ public sealed class CodexRateLimitProvider(string? executable = null, TimeSpan? 
         {
             start.ArgumentList.Add("app-server"); start.ArgumentList.Add("--listen"); start.ArgumentList.Add("stdio://");
         }
-        using var process = Process.Start(start) ?? throw new IOException("No se pudo iniciar Codex.");
+        using var process = Process.Start(start) ?? throw new IOException("Could not start Codex.");
         // Drain diagnostics without retaining potentially sensitive server output.
         var drain = DrainAsync(process.StandardError);
         try
         {
-            await SendAsync(process, new { id = 1, method = "initialize", @params = new { clientInfo = new { name = "codex_token_monitor", title = "Codex Token Monitor", version = "1.0.0" } } }, ct);
+            await SendAsync(process, new { id = 1, method = "initialize", @params = new { clientInfo = new { name = "codex_token_monitor", title = "Codex Token Monitor", version = "1.0.1" } } }, ct);
             await ReceiveAsync(process, 1, ct);
             await SendAsync(process, new { method = "initialized" }, ct);
             await SendAsync(process, new { id = 2, method = "account/rateLimits/read" }, ct);
@@ -71,10 +71,10 @@ public sealed class CodexRateLimitProvider(string? executable = null, TimeSpan? 
     {
         while (true)
         {
-            var line = await process.StandardOutput.ReadLineAsync(ct) ?? throw new IOException("Codex cerró la conexión.");
+            var line = await process.StandardOutput.ReadLineAsync(ct) ?? throw new IOException("Codex closed the connection.");
             using var doc = JsonDocument.Parse(line);
             var root = doc.RootElement;
-            if (root.ValueKind != JsonValueKind.Object) throw new InvalidDataException("Mensaje RPC inválido.");
+            if (root.ValueKind != JsonValueKind.Object) throw new InvalidDataException("Invalid RPC message.");
             if (root.TryGetProperty("method", out _) && root.TryGetProperty("id", out var requestId))
             {
                 await SendAsync(process, new { id = requestId.Clone(), error = new { code = -32601, message = "Unsupported client request" } }, ct);
@@ -82,7 +82,7 @@ public sealed class CodexRateLimitProvider(string? executable = null, TimeSpan? 
             }
             if (!root.TryGetProperty("id", out var responseId) || responseId.ValueKind != JsonValueKind.Number || !responseId.TryGetInt32(out var number) || number != id) continue;
             if (root.TryGetProperty("error", out var error)) throw CodexRpcException.FromError(error);
-            if (!root.TryGetProperty("result", out var result)) throw new InvalidDataException("Respuesta RPC sin result.");
+            if (!root.TryGetProperty("result", out var result)) throw new InvalidDataException("RPC response is missing result.");
             return result.Clone();
         }
     }

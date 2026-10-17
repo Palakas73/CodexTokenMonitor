@@ -6,7 +6,7 @@ public static class CodexLocator
     {
         if (explicitPath is not null)
             return File.Exists(explicitPath) && Path.GetExtension(explicitPath).Equals(".exe", StringComparison.OrdinalIgnoreCase)
-                ? Path.GetFullPath(explicitPath) : throw new FileNotFoundException("La ruta de Codex debe apuntar a un .exe existente.");
+                ? Path.GetFullPath(explicitPath) : throw new FileNotFoundException("The Codex path must point to an existing .exe file.");
         foreach (var directory in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator))
         {
             var candidate = Path.Combine(directory.Trim('"'), "codex.exe");
@@ -19,6 +19,6 @@ public static class CodexLocator
                 .OrderByDescending(File.GetLastWriteTimeUtc).FirstOrDefault();
             if (candidate is not null) return candidate;
         }
-        throw new FileNotFoundException("No se encuentra codex.exe. Añádelo a PATH o usa --codex ruta.exe.");
+        throw new FileNotFoundException("Cannot find codex.exe. Add it to PATH or use --codex path.exe.");
     }
 }

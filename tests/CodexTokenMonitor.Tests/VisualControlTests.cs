@@ -18,7 +18,7 @@ public sealed class VisualControlTests
                 gauge.Measure(new(280, 88)); gauge.Arrange(new Rect(0, 0, 280, 88));
                 var bitmap = new RenderTargetBitmap(280, 88, 96, 96, PixelFormats.Pbgra32); bitmap.Render(gauge);
                 var pixels = new byte[280 * 88 * 4]; bitmap.CopyPixels(pixels, 280 * 4, 0);
-                for (var i = 0; i < pixels.Length; i += 4) Assert.False(pixels[i + 1] > 150 && pixels[i + 1] > pixels[i + 2] * 1.3, "Un arco de cuota baja no debe contener verde intenso.");
+                for (var i = 0; i < pixels.Length; i += 4) Assert.False(pixels[i + 1] > 150 && pixels[i + 1] > pixels[i + 2] * 1.3, "A low-quota arc must not contain bright green.");
             }
             catch (Exception ex) { failure = ex; }
         });

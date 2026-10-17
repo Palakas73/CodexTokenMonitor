@@ -2,6 +2,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using CodexTokenMonitor.Core;
+using CodexTokenMonitor.Infrastructure;
+using System.Text.Json;
 
 namespace CodexTokenMonitor.App;
 
@@ -11,9 +13,9 @@ public sealed class MonitorViewModel(IRateLimitProvider provider, bool simulated
 {
     private readonly MonitorState state = new();
     private readonly SemaphoreSlim gate = new(1, 1);
-    public ObservableCollection<QuotaRow> Rows { get; } = [new("Cuotas", "--", "")];
-    public string Status { get; private set; } = "Sin datos";
-    public string LastUpdate => state.LastGood is { } snapshot ? $"Última lectura correcta: {snapshot.ReadAt.ToLocalTime():g}" : "Última lectura correcta: --";
+    public ObservableCollection<QuotaRow> Rows { get; } = [new("Quotas", "--", "")];
+    public string Status { get; private set; } = "No data";
+    public string LastUpdate => state.LastGood is { } snapshot ? $"Last successful update: {snapshot.ReadAt.ToLocalTime():g}" : "Last successful update: --";
     public event PropertyChangedEventHandler? PropertyChanged;
     public void ReportError(string message) { Status = message; Notify(); }
     private VisualMode mode;
@@ -23,7 +25,7 @@ public sealed class MonitorViewModel(IRateLimitProvider provider, bool simulated
     public void CheckAge(TimeSpan maxAge)
     {
         if (state.LastGood is { } good && DateTimeOffset.UtcNow - good.ReadAt > maxAge && !state.IsStale)
-        { state.Fail("La última lectura ha caducado"); Status = "DESACTUALIZADO · esperando nueva lectura"; Notify(); }
+        { state.Fail("The last reading has expired"); Status = "STALE · waiting for a new reading"; Notify(); }
     }
 
     private void RenderRows()
@@ -32,10 +34,10 @@ public sealed class MonitorViewModel(IRateLimitProvider provider, bool simulated
         var wanted = Selection switch { QuotaSelection.FiveHours => new[] { QuotaKind.FiveHours }, QuotaSelection.Weekly => [QuotaKind.Weekly], _ => [QuotaKind.FiveHours, QuotaKind.Weekly] };
         foreach (var kind in wanted)
         {
-            var name = kind == QuotaKind.FiveHours ? "Cinco horas" : "Semanal";
+            var name = kind == QuotaKind.FiveHours ? "Five hours" : "Weekly";
             var windows = state.LastGood?.Windows.Where(w => w.Kind == kind).ToArray() ?? [];
-            if (windows.Length == 0) Rows.Add(new(name, "--", "Cuota no disponible"));
-            foreach (var w in windows) Rows.Add(new($"{w.BucketId} · {name}", w.RemainingPercent.ToString("0.#", CultureInfo.CurrentCulture) + "%", w.ResetsAt is { } reset ? $"Restablecimiento: {reset.ToLocalTime():g}" : "Restablecimiento: --", w.RemainingPercent));
+            if (windows.Length == 0) Rows.Add(new(name, "--", "Quota unavailable"));
+            foreach (var w in windows) Rows.Add(new($"{w.BucketId} · {name}", w.RemainingPercent.ToString("0.#", CultureInfo.CurrentCulture) + "%", w.ResetsAt is { } reset ? $"Resets: {reset.ToLocalTime():g}" : "Resets: --", w.RemainingPercent));
         }
     }
 
@@ -44,18 +46,26 @@ public sealed class MonitorViewModel(IRateLimitProvider provider, bool simulated
         if (!await gate.WaitAsync(0, ct)) return;
         try
         {
-            Status = "Consultando…";
+            Status = "Refreshing…";
             Notify();
             var snapshot = await provider.ReadAsync(ct);
             state.Accept(snapshot);
             RenderRows();
-            Status = simulated ? "SIMULACIÓN · datos de demostración" : "Datos reales de Codex";
+            Status = simulated ? "SIMULATION · demo data" : "Live Codex data";
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested) { }
         catch (Exception ex)
         {
-            state.Fail(ex.Message);
-            Status = $"{(state.LastGood is null ? "Sin datos" : "DESACTUALIZADO")}: {state.Error}";
+            state.Fail(ex switch
+            {
+                FileNotFoundException => "Codex CLI could not be found. Check its installation or use --codex.",
+                Win32Exception => "Could not start Codex. Check permissions and the CLI installation.",
+                JsonException => "Codex returned an invalid JSON response.",
+                CodexRpcException or TimeoutException or InvalidDataException => ex.Message,
+                IOException => "The connection to Codex failed. Try refreshing again.",
+                _ => "Unable to read usage limits. Check Codex and try again."
+            });
+            Status = $"{(state.LastGood is null ? "No data" : "STALE")}: {state.Error}";
         }
         finally { Notify(); gate.Release(); }
     }
