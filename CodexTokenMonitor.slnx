@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="src/CodexTokenMonitor.Core/CodexTokenMonitor.Core.csproj" />
+  <Project Path="src/CodexTokenMonitor.Infrastructure/CodexTokenMonitor.Infrastructure.csproj" />
+  <Project Path="src/CodexTokenMonitor.App/CodexTokenMonitor.App.csproj" />
+  <Project Path="tests/CodexTokenMonitor.Tests/CodexTokenMonitor.Tests.csproj" />
+  <Project Path="tests/CodexTokenMonitor.FakeServer/CodexTokenMonitor.FakeServer.csproj" />
+</Solution>

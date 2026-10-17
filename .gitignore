@@ -1,0 +1,51 @@
+# Build, publish and test output (at any depth)
+[Bb]in/
+[Oo]bj/
+artifacts/
+[Tt]est[Rr]esults/
+*.trx
+*.coverage
+*.coveragexml
+*.zip
+
+# Visual Studio / IDE machine state
+.vs/
+.idea/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.rsuser
+
+# Temporary files, logs and caches
+*.tmp
+*.temp
+*.bak
+*.log
+*.pid
+*.cache
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Credentials, local configuration and signing material
+.env
+.env.*
+.codex/
+.agents/
+.aws/
+auth.json
+preferences.json
+*.local.json
+*.local.props
+*.local.targets
+secrets.json
+credentials.json
+*.pfx
+*.p12
+*.pem
+*.key
+*.snk
