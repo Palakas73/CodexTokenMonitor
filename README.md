@@ -6,7 +6,7 @@ A lightweight native Windows 11 widget built with C#, .NET 10, WPF and MVVM. It 
 
 ## Download and run
 
-Download `CodexTokenMonitor-v1.0.2-win-x64.zip` from [Release v1.0.2](https://github.com/Palakas73/CodexTokenMonitor/releases/tag/v1.0.2), extract it to a permanent folder, and run `CodexTokenMonitor.App.exe`. The public release includes a ready-to-run Windows x64 package.
+Download `CodexTokenMonitor-v1.0.3-win-x64.zip` from [Release v1.0.3](https://github.com/Palakas73/CodexTokenMonitor/releases/tag/v1.0.3), extract it to a permanent folder, and run `CodexTokenMonitor.App.exe`. The public release includes a ready-to-run Windows x64 package.
 
 The Windows x64 build is self-contained: you do not need to install .NET to run it. Codex CLI must be installed and signed in with an account that supports ChatGPT usage limits. No API key is required. Building from source creates the executable under `artifacts\win-x64`.
 
