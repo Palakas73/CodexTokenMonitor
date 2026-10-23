@@ -15,6 +15,9 @@ public sealed class MonitorViewModel(IRateLimitProvider provider, bool simulated
     private readonly SemaphoreSlim gate = new(1, 1);
     public ObservableCollection<QuotaRow> Rows { get; } = [new("Quotas", "--", "")];
     public string Status { get; private set; } = "No data";
+    public int AvailableResets { get; private set; }
+    public string ResetCoinsHint => $"{AvailableResets} resets available";
+    public ObservableCollection<int> ResetCoinSlots { get; } = [];
     public string LastUpdate => state.LastGood is { } snapshot ? $"Last successful update: {snapshot.ReadAt.ToLocalTime():g}" : "Last successful update: --";
     public event PropertyChangedEventHandler? PropertyChanged;
     public void ReportError(string message) { Status = message; Notify(); }
@@ -50,6 +53,9 @@ public sealed class MonitorViewModel(IRateLimitProvider provider, bool simulated
             Notify();
             var snapshot = await provider.ReadAsync(ct);
             state.Accept(snapshot);
+            AvailableResets = snapshot.Windows.Count(w => w.ResetsAt is not null);
+            ResetCoinSlots.Clear();
+            for (var i = 0; i < AvailableResets; i++) ResetCoinSlots.Add(i);
             RenderRows();
             Status = simulated ? "SIMULATION · demo data" : "Live Codex data";
         }
@@ -73,6 +79,9 @@ public sealed class MonitorViewModel(IRateLimitProvider provider, bool simulated
     private void Notify()
     {
         PropertyChanged?.Invoke(this, new(nameof(Status)));
+        PropertyChanged?.Invoke(this, new(nameof(AvailableResets)));
+        PropertyChanged?.Invoke(this, new(nameof(ResetCoinSlots)));
+        PropertyChanged?.Invoke(this, new(nameof(ResetCoinsHint)));
         PropertyChanged?.Invoke(this, new(nameof(LastUpdate)));
     }
 }

@@ -19,7 +19,7 @@ Authentication classification uses recognized server-message terms. The RPC code
 
 The Topmost borderless window supports configurable opacity and background transparency. Physical HWND coordinates are fitted to monitor working areas using WM_DISPLAYCHANGE, WM_DPICHANGED and PerMonitorV2. Refresh never calls Activate. Dragging ends with a monitor-fit check.
 
-Digital, gauge and RPG controls receive remaining quota or NaN for missing data. Changes animate for 350 ms without a continuous rendering loop and respect ClientAreaAnimation. Rows and tooltips expose percentage values to accessibility. The RPG bar is left-anchored so consumption empties it from the right.
+Digital, gauge and RPG controls receive remaining quota or NaN for missing data. Changes animate for 350 ms without a continuous rendering loop and respect ClientAreaAnimation. Rows and tooltips expose percentage values to accessibility. The RPG bar is left-anchored so consumption empties it from the right. The status line renders the bundled transparent `MONEDA.png` once per quota window with a valid `resetsAt`; its tooltip reports the count in English and no coin is shown for an unavailable reset time.
 
 The application explicitly defaults CurrentUICulture and DefaultThreadCurrentUICulture to en-US. CurrentCulture is preserved for regional number and date formats. App-owned strings and scripts are English. System-dependent failures shown to users use English summaries rather than localized native exception text.
 

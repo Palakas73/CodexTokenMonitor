@@ -29,6 +29,7 @@ The Windows x64 build is self-contained: you do not need to install .NET to run 
 - Values always show **remaining** quota: green at 70% or higher, yellow at 30%, orange at 10% and red below 10%. Calculation: `clamp(100 - usedPercent, 0, 100)`.
 - Missing quotas display `--`. Five hours (300 minutes) and weekly (10080 minutes) are identified by duration, never by response position. Account buckets remain separate.
 - Failed reads preserve the last valid values and display **STALE**. Last successful update and reset times use local time. An unavailable quota does not mean 0%.
+- The status line displays one transparent gold coin image for each quota window with a valid reset time. Hover over the coins to see the English tooltip, for example `2 resets available`.
 
 The default interface language is English, including menus, status and app-owned error messages. Dates and numbers retain the user's regional formats; there is no language selector.
 

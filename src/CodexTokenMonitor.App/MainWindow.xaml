@@ -4,7 +4,13 @@
     <DockPanel Margin="20">
         <StackPanel DockPanel.Dock="Top">
             <TextBlock Text="CODEX · REMAINING QUOTA" FontSize="14" FontWeight="Bold" />
-            <TextBlock Text="{Binding Status}" Margin="0,8,0,8" TextWrapping="Wrap" Foreground="#FACC15" />
+            <StackPanel Orientation="Horizontal" Margin="0,8,0,8">
+                <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Foreground="#FACC15" VerticalAlignment="Center" />
+                <ItemsControl ItemsSource="{Binding ResetCoinSlots}" Margin="8,0,0,0" ToolTip="{Binding ResetCoinsHint}">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate><DataTemplate><Image Source="/CodexTokenMonitor.App;component/Assets/MONEDA.png" Width="18" Height="18" Margin="1,0" /></DataTemplate></ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
         </StackPanel>
         <StackPanel DockPanel.Dock="Bottom">
             <TextBlock Text="{Binding LastUpdate}" Margin="0,10" />

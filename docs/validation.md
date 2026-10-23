@@ -68,3 +68,7 @@ The interface, app-owned errors, scripts and documentation have been translated 
 - Windows notification-area overflow remains under user control; no taskbar registry or system preferences were changed.
 
 Final v1.0.2 packaging: `scripts/publish.ps1` completed with exit code 0, all **44 tests passed** with no failures or skips, and the self-contained EXE and ZIP were generated. The executable's own icon was extracted for artifact inspection, separately from the loose source artwork.
+
+## Reset availability coins
+
+The status line now renders the bundled transparent `MONEDA.png` once for each quota window that includes a valid reset time. Hovering over the coin group displays an English tooltip such as `2 resets available`. The implementation was compiled in Release and the full **45-test** suite passed with no failures or skips after this change.

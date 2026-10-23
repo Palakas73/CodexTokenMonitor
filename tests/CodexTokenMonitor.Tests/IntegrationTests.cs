@@ -72,6 +72,20 @@ public sealed class IntegrationTests
         empty.Result.SetResult(new([], DateTimeOffset.UtcNow)); await read;
         Assert.All(missing.Rows, row => { Assert.Equal("--", row.Percentage); Assert.True(double.IsNaN(row.Remaining)); });
     }
+    [Fact] public async Task ResetCoinsRepresentAvailableResetWindows()
+    {
+        var provider = new WaitingProvider(); var vm = new MonitorViewModel(provider, false);
+        var read = vm.RefreshAsync(CancellationToken.None);
+        provider.Result.SetResult(new([
+            new("five-hour", 300, 10, DateTimeOffset.UtcNow.AddHours(2)),
+            new("weekly", 10080, 20, DateTimeOffset.UtcNow.AddDays(2)),
+            new("unknown", null, 0, null)
+        ], DateTimeOffset.UtcNow));
+        await read;
+        Assert.Equal(2, vm.AvailableResets);
+        Assert.Equal([0, 1], vm.ResetCoinSlots);
+        Assert.Equal("2 resets available", vm.ResetCoinsHint);
+    }
     [Fact] public async Task OldSnapshotBecomesStaleWithoutLosingValues()
     {
         var provider = new WaitingProvider(); var vm = new MonitorViewModel(provider, false); var read = vm.RefreshAsync(CancellationToken.None);
