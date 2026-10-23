@@ -1,4 +1,4 @@
-# Codex Token Monitor v1.0.2
+# Codex Token Monitor v1.0.3
 
 A lightweight native Windows 11 widget built with C#, .NET 10, WPF and MVVM. It reads real usage limits from the official local Codex app-server without generating model turns or reading credentials directly.
 
