@@ -53,7 +53,9 @@ public sealed class MonitorViewModel(IRateLimitProvider provider, bool simulated
             Notify();
             var snapshot = await provider.ReadAsync(ct);
             state.Accept(snapshot);
-            AvailableResets = snapshot.Windows.Count(w => w.ResetsAt is not null);
+            AvailableResets = snapshot.Windows.Count(w =>
+                w.ResetsAt is { } reset && reset > snapshot.ReadAt &&
+                w.Kind is QuotaKind.FiveHours or QuotaKind.Weekly);
             ResetCoinSlots.Clear();
             for (var i = 0; i < AvailableResets; i++) ResetCoinSlots.Add(i);
             RenderRows();
