@@ -80,7 +80,8 @@ public sealed class IntegrationTests
             new("five-hour", 300, 10, DateTimeOffset.UtcNow.AddHours(2)),
             new("weekly", 10080, 20, DateTimeOffset.UtcNow.AddDays(2)),
             new("unknown", null, 0, DateTimeOffset.UtcNow.AddDays(2)),
-            new("expired", 300, 0, DateTimeOffset.UtcNow.AddMinutes(-1))
+            new("expired", 300, 0, DateTimeOffset.UtcNow.AddMinutes(-1)),
+            new("empty", 300, 100, DateTimeOffset.UtcNow.AddHours(1))
         ], DateTimeOffset.UtcNow));
         await read;
         Assert.Equal(2, vm.AvailableResets);
